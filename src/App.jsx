@@ -300,6 +300,7 @@ export default function AjouGroupBuyingApp() {
   }, []);
 
   const checkUserRole = async (currentUser) => {
+  try {
     if (!currentUser) {
       setUser(null);
       setRole("auth");
@@ -308,15 +309,29 @@ export default function AjouGroupBuyingApp() {
 
     setUser(currentUser);
 
-    const { data, error } = await supabase.from("profiles").select("role").eq("id", currentUser.id).single();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", currentUser.id)
+      .maybeSingle();
 
-    if (error || !data) {
+    // profiles 없으면 자동 생성
+    if (!data || error) {
+      await supabase.from("profiles").upsert({
+        id: currentUser.id,
+        role: "guest",
+      });
+
       setRole("guest");
       return;
     }
 
     setRole(data.role || "guest");
-  };
+  } catch (err) {
+    console.error(err);
+    setRole("auth");
+  }
+};
 
   const fetchJoinedDeals = async (currentUserId = user?.id) => {
     if (!currentUserId) return;
