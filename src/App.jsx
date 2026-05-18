@@ -759,11 +759,21 @@ export default function AjouGroupBuyingApp() {
                     <CardContent className="flex items-center justify-between gap-4 p-5">
                       <div>
                         <p className="font-bold">
-                          <User size={16} className="mr-1 inline" /> 신규 가입자
-                        </p>
-                        <a href={req.id_card_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 underline">
-                          사진 확인
-                        </a>
+  <User size={16} className="mr-1 inline" /> 인증 요청자
+</p>
+
+<p className="mt-1 break-all text-xs text-slate-500">
+  ID: {req.user_id}
+</p>
+
+<a
+  href={req.id_card_url}
+  target="_blank"
+  rel="noreferrer"
+  className="mt-2 inline-block text-sm text-blue-600 underline"
+>
+  제출 사진 확인
+</a>
                       </div>
                       <div className="flex gap-2">
                         <Button onClick={() => rejectVerification(req.id)} variant="danger">
