@@ -10,7 +10,6 @@ import {
   ShieldAlert,
   Check,
   School,
-  LogOut,
   Lock,
   Mail,
   User,
@@ -93,9 +92,11 @@ function ProgressBar({ current, total }) {
 }
 
 // --- 공구 카드 컴포넌트 ---
-function DealCard({ deal, onJoin, isJoined }) {
+function DealCard({ deal, onJoin, isJoined, onDelete, role }) {
   const isFull = Number(deal.current_people) >= Number(deal.total_people);
   const canSeeBankInfo = isJoined || deal.is_author;
+  const canCancel = deal.is_author && !isFull;
+  const canAdminDelete = role === "admin";
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
@@ -165,9 +166,16 @@ function DealCard({ deal, onJoin, isJoined }) {
             <Button onClick={() => onJoin(deal)} disabled={isFull || isJoined || deal.is_author} className={`flex-1 ${isJoined ? "!bg-emerald-600" : ""}`}>
               {deal.is_author ? "내가 만든 공구" : isJoined ? "참여 완료" : isFull ? "구매 진행중" : "참여하기"}
             </Button>
+
             <Button variant="outline">
               <MessageCircle size={17} />
             </Button>
+
+            {(canCancel || canAdminDelete) && (
+              <Button variant="danger" onClick={() => onDelete(deal)} className="px-3">
+                삭제
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -290,76 +298,75 @@ export default function AjouGroupBuyingApp() {
   const [loadingDeals, setLoadingDeals] = useState(false);
 
   useEffect(() => {
-  let mounted = true;
+    let mounted = true;
 
-  const initAuth = async () => {
-    try {
-      const { data, error } = await supabase.auth.getSession();
+    const initAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
 
-      if (error) {
-        console.error("getSession error:", error);
+        if (error) {
+          console.error("getSession error:", error);
+          if (mounted) setRole("auth");
+          return;
+        }
+
+        if (mounted) {
+          await checkUserRole(data?.session?.user ?? null);
+        }
+      } catch (err) {
+        console.error("initAuth error:", err);
         if (mounted) setRole("auth");
+      }
+    };
+
+    initAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      checkUserRole(session?.user ?? null);
+    });
+
+    const fallbackTimer = setTimeout(() => {
+      if (mounted) {
+        setRole((prev) => (prev === "loading" ? "auth" : prev));
+      }
+    }, 4000);
+
+    return () => {
+      mounted = false;
+      clearTimeout(fallbackTimer);
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const checkUserRole = async (currentUser) => {
+    try {
+      if (!currentUser) {
+        setUser(null);
+        setRole("auth");
         return;
       }
 
-      if (mounted) {
-        await checkUserRole(data?.session?.user ?? null);
+      setUser(currentUser);
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if (!data || error) {
+        setRole("auth");
+        return;
       }
+
+      setRole(data.role || "guest");
     } catch (err) {
-      console.error("initAuth error:", err);
-      if (mounted) setRole("auth");
-    }
-  };
-
-  initAuth();
-
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, session) => {
-    checkUserRole(session?.user ?? null);
-  });
-
-  const fallbackTimer = setTimeout(() => {
-    if (mounted) {
-      setRole((prev) => (prev === "loading" ? "auth" : prev));
-    }
-  }, 4000);
-
-  return () => {
-    mounted = false;
-    clearTimeout(fallbackTimer);
-    subscription.unsubscribe();
-  };
-}, []);
-
-  const checkUserRole = async (currentUser) => {
-  try {
-    if (!currentUser) {
-      setUser(null);
+      console.error(err);
       setRole("auth");
-      return;
     }
-
-    setUser(currentUser);
-
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", currentUser.id)
-      .maybeSingle();
-
-    // profiles 없으면 자동 생성
-    if (!data || error) {
-  setRole("auth");
-  return;
-}
-
-    setRole(data.role || "guest");
-  } catch (err) {
-    console.error(err);
-    setRole("auth");
-  }
-};
+  };
 
   const fetchJoinedDeals = async (currentUserId = user?.id) => {
     if (!currentUserId) return;
@@ -436,16 +443,16 @@ export default function AjouGroupBuyingApp() {
       error ? alert("가입 실패: " + error.message) : alert("가입 완료! 메일 인증 후 로그인해주세요.");
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({
-  email,
-  password,
-});
+        email,
+        password,
+      });
 
-if (error) {
-  alert("로그인 실패: " + error.message);
-  return;
-}
+      if (error) {
+        alert("로그인 실패: " + error.message);
+        return;
+      }
 
-await checkUserRole(data.user);
+      await checkUserRole(data.user);
     }
   };
 
@@ -587,6 +594,33 @@ await checkUserRole(data.user);
     }
   };
 
+  const deleteDeal = async (deal) => {
+    const isFull = Number(deal.current_people) >= Number(deal.total_people);
+
+    if (deal.author_id === user.id && isFull && role !== "admin") {
+      return alert("모집이 완료된 공구는 작성자가 취소할 수 없습니다.");
+    }
+
+    if (deal.author_id !== user.id && role !== "admin") {
+      return alert("삭제 권한이 없습니다.");
+    }
+
+    const ok = window.confirm("정말 이 공구를 삭제하시겠습니까?");
+    if (!ok) return;
+
+    try {
+      const { error } = await supabase.from("deals").delete().eq("id", deal.id);
+
+      if (error) throw error;
+
+      alert("삭제 완료!");
+      await fetchDeals();
+      await fetchJoinedDeals();
+    } catch (error) {
+      alert("삭제 실패: " + error.message);
+    }
+  };
+
   const approveStudent = async (verificationId, targetUserId) => {
     try {
       const { error: profileError } = await supabase.from("profiles").update({ role: "student" }).eq("id", targetUserId);
@@ -689,19 +723,20 @@ await checkUserRole(data.user);
               <Button onClick={() => setModalOpen(true)}>
                 <Plus size={18} className="mr-1" /> 공구 등록
               </Button>
-            )}<button
-  onClick={async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setRole("auth");
-    setDeals([]);
-    setJoinedDeals([]);
-    setPendingVerifications([]);
-  }}
-  className="rounded-xl border px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100"
->
-  로그아웃
-</button>
+            )}
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setUser(null);
+                setRole("auth");
+                setDeals([]);
+                setJoinedDeals([]);
+                setPendingVerifications([]);
+              }}
+              className="rounded-xl border px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100"
+            >
+              로그아웃
+            </button>
           </div>
         </div>
       </header>
@@ -808,7 +843,14 @@ await checkUserRole(data.user);
             ) : (
               <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {filteredDeals.map((deal) => (
-                  <DealCard key={deal.id} deal={deal} onJoin={joinDeal} isJoined={joinedDeals.includes(deal.id)} />
+                  <DealCard
+                    key={deal.id}
+                    deal={deal}
+                    onJoin={joinDeal}
+                    isJoined={joinedDeals.includes(deal.id)}
+                    onDelete={deleteDeal}
+                    role={role}
+                  />
                 ))}
               </section>
             )}
