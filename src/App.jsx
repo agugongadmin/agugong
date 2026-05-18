@@ -652,10 +652,19 @@ export default function AjouGroupBuyingApp() {
               <Button onClick={() => setModalOpen(true)}>
                 <Plus size={18} className="mr-1" /> 공구 등록
               </Button>
-            )}
-            <button onClick={() => supabase.auth.signOut()} className="rounded-xl border p-2.5 text-slate-500 hover:bg-slate-100">
-              <LogOut size={18} />
-            </button>
+            )}<button
+  onClick={async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setRole("auth");
+    setDeals([]);
+    setJoinedDeals([]);
+    setPendingVerifications([]);
+  }}
+  className="rounded-xl border px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100"
+>
+  로그아웃
+</button>
           </div>
         </div>
       </header>
