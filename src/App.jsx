@@ -290,14 +290,47 @@ export default function AjouGroupBuyingApp() {
   const [loadingDeals, setLoadingDeals] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => checkUserRole(session?.user ?? null));
+  let mounted = true;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => checkUserRole(session?.user ?? null));
+  const initAuth = async () => {
+    try {
+      const { data, error } = await supabase.auth.getSession();
 
-    return () => subscription.unsubscribe();
-  }, []);
+      if (error) {
+        console.error("getSession error:", error);
+        if (mounted) setRole("auth");
+        return;
+      }
+
+      if (mounted) {
+        await checkUserRole(data?.session?.user ?? null);
+      }
+    } catch (err) {
+      console.error("initAuth error:", err);
+      if (mounted) setRole("auth");
+    }
+  };
+
+  initAuth();
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    checkUserRole(session?.user ?? null);
+  });
+
+  const fallbackTimer = setTimeout(() => {
+    if (mounted) {
+      setRole((prev) => (prev === "loading" ? "auth" : prev));
+    }
+  }, 4000);
+
+  return () => {
+    mounted = false;
+    clearTimeout(fallbackTimer);
+    subscription.unsubscribe();
+  };
+}, []);
 
   const checkUserRole = async (currentUser) => {
   try {
@@ -317,7 +350,7 @@ export default function AjouGroupBuyingApp() {
 
     // profiles 없으면 자동 생성
     if (!data || error) {
-  setRole("guest");
+  setRole("auth");
   return;
 }
 
