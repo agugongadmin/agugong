@@ -435,8 +435,17 @@ export default function AjouGroupBuyingApp() {
       const { error } = await supabase.auth.signUp({ email, password });
       error ? alert("가입 실패: " + error.message) : alert("가입 완료! 메일 인증 후 로그인해주세요.");
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert("로그인 실패: " + error.message);
+      const { data, error } = await supabase.auth.signInWithPassword({
+  email,
+  password,
+});
+
+if (error) {
+  alert("로그인 실패: " + error.message);
+  return;
+}
+
+await checkUserRole(data.user);
     }
   };
 
