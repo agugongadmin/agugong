@@ -317,14 +317,9 @@ export default function AjouGroupBuyingApp() {
 
     // profiles 없으면 자동 생성
     if (!data || error) {
-      await supabase.from("profiles").upsert({
-        id: currentUser.id,
-        role: "guest",
-      });
-
-      setRole("guest");
-      return;
-    }
+  setRole("guest");
+  return;
+}
 
     setRole(data.role || "guest");
   } catch (err) {
