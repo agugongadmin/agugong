@@ -748,9 +748,13 @@ const sendChatMessage = async () => {
       <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white">
-              <School size={26} />
-            </div>
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-md">
+  <img
+    src="/logo.png"
+    alt="아구공 로고"
+    className="h-full w-full object-cover"
+  />
+</div>
             <h2 className="text-2xl font-black">아구공 시작하기</h2>
             <p className="mt-2 text-sm text-slate-500">아주대학교 이메일로만 이용할 수 있습니다.</p>
           </div>
@@ -811,9 +815,13 @@ const sendChatMessage = async () => {
       <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
-              <School size={24} />
-            </div>
+            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm">
+  <img
+    src="/logo.png"
+    alt="아구공 로고"
+    className="h-full w-full object-cover"
+  />
+</div>
             <div>
               <h1 className="text-xl font-black">아구공</h1>
               <div className="flex gap-1 text-xs font-semibold text-slate-500">
