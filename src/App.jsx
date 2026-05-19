@@ -652,6 +652,56 @@ export default function AjouGroupBuyingApp() {
   }
 
   if (role === "auth") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
+          <div className="mb-6 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white">
+              <School size={26} />
+            </div>
+            <h2 className="text-2xl font-black">아구공 시작하기</h2>
+            <p className="mt-2 text-sm text-slate-500">아주대학교 이메일로만 이용할 수 있습니다.</p>
+          </div>
+
+          <form onSubmit={handleAuth} className="space-y-4">
+            <div className="relative">
+              <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
+              <input
+                type="email"
+                placeholder="아주대 이메일 (@ajou.ac.kr)"
+                className="w-full rounded-xl border p-3 pl-10 outline-none"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="relative">
+              <Lock className="absolute left-3 top-3.5 text-slate-400" size={18} />
+              <input
+                type="password"
+                placeholder="비밀번호"
+                className="w-full rounded-xl border p-3 pl-10 outline-none"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            <Button type="submit" className="w-full py-4 text-lg">
+              {isSignUp ? "회원가입" : "로그인"}
+            </Button>
+          </form>
+
+          <div className="mt-5 text-center text-sm">
+            <button onClick={() => setIsSignUp(!isSignUp)} className="font-bold text-blue-600">
+              {isSignUp ? "로그인하기" : "회원가입하기"}
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-100 text-slate-900">
   <header className="sticky top-0 z-40 border-b border-sky-100 bg-white/80 backdrop-blur-md">
     <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
@@ -970,3 +1020,5 @@ export default function AjouGroupBuyingApp() {
     onCreate={createDeal}
   />
 </div>
+  );
+}
