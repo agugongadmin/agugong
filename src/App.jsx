@@ -93,7 +93,7 @@ function ProgressBar({ current, total }) {
 }
 
 // --- 공구 카드 컴포넌트 ---
-function DealCard({ deal, onJoin, isJoined }) {
+function DealCard({ deal, onJoin, isJoined, onChat }) {
   const isFull = Number(deal.current_people) >= Number(deal.total_people);
   const canSeeBankInfo = isJoined || deal.is_author;
 
@@ -165,9 +165,9 @@ function DealCard({ deal, onJoin, isJoined }) {
             <Button onClick={() => onJoin(deal)} disabled={isFull || isJoined || deal.is_author} className={`flex-1 ${isJoined ? "!bg-emerald-600" : ""}`}>
               {deal.is_author ? "내가 만든 공구" : isJoined ? "참여 완료" : isFull ? "구매 진행중" : "참여하기"}
             </Button>
-            <Button variant="outline">
-              <MessageCircle size={17} />
-            </Button>
+           <Button variant="outline" onClick={() => onChat(deal)}>
+  <MessageCircle size={17} />
+</Button>
           </div>
         </CardContent>
       </Card>
@@ -293,6 +293,10 @@ export default function AjouGroupBuyingApp() {
   const [modalOpen, setModalOpen] = useState(false);
   const [loadingDeals, setLoadingDeals] = useState(false);
   const [activityOpen, setActivityOpen] = useState(null);
+
+  const [chatOpenDeal, setChatOpenDeal] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
 
   useEffect(() => {
   let mounted = true;
@@ -561,15 +565,26 @@ export default function AjouGroupBuyingApp() {
       alert("공구 등록 실패: " + error.message);
     }
   };
-
   const joinDeal = async (deal) => {
-    if (!user) return alert("로그인이 필요합니다.");
-    if (deal.author_id === user.id) return alert("내가 만든 공구에는 참여할 수 없습니다.");
-    if (joinedDeals.includes(deal.id)) return alert("이미 참여한 공구입니다.");
-    if (Number(deal.current_people) >= Number(deal.total_people)) return alert("이미 마감된 공구입니다.");
+  if (!user) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
 
-    try {
-      const { error: participantError } = await supabase.from("deal_participants").insert([
+  if (joinedDeals.includes(deal.id)) {
+    alert("이미 참여한 공구입니다.");
+    return;
+  }
+
+  if (deal.current_people >= deal.total_people) {
+    alert("모집이 완료된 공구입니다.");
+    return;
+  }
+
+  try {
+    const { error: participantError } = await supabase
+      .from("deal_participants")
+      .insert([
         {
           deal_id: deal.id,
           user_id: user.id,
@@ -577,33 +592,81 @@ export default function AjouGroupBuyingApp() {
         },
       ]);
 
-      if (participantError) throw participantError;
+    if (participantError) throw participantError;
 
-      const nextPeople = Number(deal.current_people) + 1;
-      const nextStatus = nextPeople >= Number(deal.total_people) ? "마감" : "모집중";
+    const newCurrentPeople = Number(deal.current_people) + 1;
 
-      const { error: updateError } = await supabase
-        .from("deals")
-        .update({
-          current_people: nextPeople,
-          status: nextStatus,
-        })
-        .eq("id", deal.id)
-        .eq("current_people", deal.current_people);
+    const { error: updateError } = await supabase
+      .from("deals")
+      .update({
+        current_people: newCurrentPeople,
+        status:
+          newCurrentPeople >= deal.total_people
+            ? "모집완료"
+            : "모집중",
+      })
+      .eq("id", deal.id);
 
-      if (updateError) throw updateError;
+    if (updateError) throw updateError;
 
-      alert("참여 완료! 이제 송금 계좌를 확인할 수 있습니다.");
-      await fetchDeals();
-      await fetchJoinedDeals();
-    } catch (error) {
-      if (error.code === "23505") {
-        alert("이미 참여한 공구입니다.");
-      } else {
-        alert("참여 실패: " + error.message);
-      }
-    }
-  };
+    alert("공구 참여 완료!");
+
+    await fetchDeals();
+    await fetchJoinedDeals();
+  } catch (error) {
+    alert("공구 참여 실패: " + error.message);
+  }
+};
+const sendChatMessage = async () => {
+  if (!user || !chatOpenDeal) return;
+
+  const message = chatInput.trim();
+  if (!message) return;
+
+  const { error } = await supabase.from("deal_chats").insert([
+    {
+      deal_id: chatOpenDeal.id,
+      user_id: user.id,
+      message,
+    },
+  ]);
+
+  if (error) {
+    alert("메시지 전송 실패: " + error.message);
+    return;
+  }
+
+  setChatInput("");
+  await openChat(chatOpenDeal);
+};
+  const openChat = async (deal) => {
+  if (!user) return alert("로그인이 필요합니다.");
+
+  const canEnterChat =
+    role === "admin" ||
+    deal.author_id === user.id ||
+    joinedDeals.includes(deal.id);
+
+  if (!canEnterChat) {
+    alert("참여자만 이용할 수 있습니다.");
+    return;
+  }
+
+  setChatOpenDeal(deal);
+
+  const { data, error } = await supabase
+    .from("deal_chats")
+    .select("*")
+    .eq("deal_id", deal.id)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    alert("채팅을 불러오지 못했습니다: " + error.message);
+    return;
+  }
+
+  setChatMessages(data || []);
+};
 
   const approveStudent = async (verificationId, targetUserId) => {
     try {
@@ -869,7 +932,13 @@ export default function AjouGroupBuyingApp() {
             ) : (
               <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {filteredDeals.map((deal) => (
-                  <DealCard key={deal.id} deal={deal} onJoin={joinDeal} isJoined={joinedDeals.includes(deal.id)} />
+                 <DealCard
+  key={deal.id}
+  deal={deal}
+  onJoin={joinDeal}
+  isJoined={joinedDeals.includes(deal.id)}
+  onChat={openChat}
+/>
                 ))}
               </section>
             )}
@@ -978,7 +1047,7 @@ export default function AjouGroupBuyingApp() {
             </button>
 
             <button
-              onClick={() => alert("채팅방 기능은 5단계에서 연결할게.")}
+             onClick={() => setActivityOpen("joined")}
               className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
             >
               참여 중인 채팅방
@@ -1034,22 +1103,7 @@ export default function AjouGroupBuyingApp() {
           </div>
         </section>
 
-        {role === "admin" && (
-          <section>
-            <h3 className="mb-3 text-sm font-black text-red-600">관리자 전용</h3>
-            <div className="grid gap-2">
-              <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
-                인증 요청 관리
-              </button>
-              <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
-                게시글 관리
-              </button>
-              <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
-                회원 관리
-              </button>
-            </div>
-          </section>
-        )}
+        
       </div>
     </div>
   </div>
@@ -1125,7 +1179,7 @@ export default function AjouGroupBuyingApp() {
         {deals
           .filter((deal) => {
             if (activityOpen === "created") return deal.author_id === user?.id;
-            return joinedDeals.includes(deal.id) && deal.author_id !== user.id;
+            return joinedDeals.includes(deal.id) && deal.author_id !== user?.id;
           })
           .map((deal) => (
             <Card key={deal.id}>
@@ -1163,7 +1217,7 @@ export default function AjouGroupBuyingApp() {
 
         {deals.filter((deal) => {
           if (activityOpen === "created") return deal.author_id === user?.id;
-          return joinedDeals.includes(deal.id) && deal.author_id !== user.id;
+          return joinedDeals.includes(deal.id) && deal.author_id !== user?.id;
         }).length === 0 && (
           <div className="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm text-slate-500">
             표시할 공구가 없습니다.
@@ -1173,7 +1227,78 @@ export default function AjouGroupBuyingApp() {
     </div>
   </div>
 )}
+{chatOpenDeal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+    <div className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-3xl bg-white shadow-2xl">
+      <div className="flex items-center justify-between border-b border-slate-100 p-5">
+        <div>
+          <h2 className="text-lg font-black text-slate-900">
+            {chatOpenDeal.title}
+          </h2>
+          <p className="text-xs text-slate-500">
+            공구 참여자 채팅방
+          </p>
+        </div>
 
+        <button
+          onClick={() => {
+            setChatOpenDeal(null);
+            setChatMessages([]);
+            setChatInput("");
+          }}
+          className="rounded-full p-2 hover:bg-slate-100"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-y-auto p-5">
+        {chatMessages.length === 0 ? (
+          <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">
+            아직 메시지가 없습니다.
+          </div>
+        ) : (
+          chatMessages.map((msg) => {
+            const isMine = msg.user_id === user?.id;
+
+            return (
+              <div
+                key={msg.id}
+                className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
+                    isMine
+                      ? "bg-gradient-to-r from-blue-500 to-sky-400 text-white"
+                      : "bg-slate-100 text-slate-800"
+                  }`}
+                >
+                  {msg.message}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="flex gap-2 border-t border-slate-100 p-4">
+        <input
+          className="flex-1 rounded-2xl border border-sky-100 p-3 text-sm outline-none focus:border-sky-400"
+          placeholder="메시지를 입력하세요"
+          value={chatInput}
+          onChange={(e) => setChatInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") sendChatMessage();
+          }}
+        />
+
+        <Button onClick={sendChatMessage}>
+          전송
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
 <CreateDealModal open={modalOpen} onClose={() => setModalOpen(false)} onCreate={createDeal} />
     </div>
   );
