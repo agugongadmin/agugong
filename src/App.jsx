@@ -867,7 +867,48 @@ export default function AjouGroupBuyingApp() {
           </>
         )}
       </main>
+      <footer className="mt-20 border-t bg-white px-6 py-8 text-sm text-slate-500">
+  <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    
+    <div>
+      <h3 className="font-bold text-slate-900">아구공</h3>
+      <p>아주대학교 구성원을 위한 공동구매 플랫폼</p>
+    </div>
 
+    <div className="flex gap-4">
+      <a
+        href="이용약관 링크"
+        target="_blank"
+        className="hover:text-slate-900"
+      >
+        이용약관
+      </a>
+
+      <a
+        href="개인정보처리방침 링크"
+        target="_blank"
+        className="hover:text-slate-900"
+      >
+        개인정보처리방침
+      </a>
+
+      <a
+        href="운영정책 링크"
+        target="_blank"
+        className="hover:text-slate-900"
+      >
+        운영정책
+      </a>
+
+      <a
+        href="mailto:example@gmail.com"
+        className="hover:text-slate-900"
+      >
+        문의하기
+      </a>
+    </div>
+  </div>
+</footer>
       <CreateDealModal open={modalOpen} onClose={() => setModalOpen(false)} onCreate={createDeal} />
     </div>
   );
