@@ -102,8 +102,8 @@ function DealCard({ deal, onJoin, isJoined, onDelete, role }) {
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
       <Card className="transition hover:-translate-y-1 hover:shadow-md">
         {deal.image_url ? (
-          <div className="h-48 w-full bg-slate-100">
-            <img src={deal.image_url} alt={deal.title} className="h-full w-full object-cover" />
+          <div className="h-32 w-full bg-slate-100">
+            <img src={deal.image_url} alt={deal.title} className="h-full w-full object-cover object-center" />
           </div>
         ) : (
           <div className="flex h-48 w-full items-center justify-center bg-slate-100 text-slate-400">
