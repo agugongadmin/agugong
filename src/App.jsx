@@ -668,13 +668,13 @@ const sendChatMessage = async () => {
   if (!message) return;
 
   const { error } = await supabase.from("deal_chats").insert([
-    {
-  deal_id: chatOpenDeal.id,
-  user_id: user.id,
-  nickname: profileNickname || user.email,
-  message,
-},
-  ]);
+  {
+    deal_id: chatOpenDeal.id,
+    user_id: user.id,
+    nickname: profileNickname || user.email,
+    message,
+  },
+]);
 
   if (error) {
     alert("메시지 전송 실패: " + error.message);
