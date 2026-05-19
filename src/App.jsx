@@ -93,7 +93,7 @@ function ProgressBar({ current, total }) {
 }
 
 // --- 공구 카드 컴포넌트 ---
-function DealCard({ deal, onJoin, isJoined, onChat }) {
+function DealCard({ deal, onJoin, isJoined, onChat, onDelete, role }) {
   const isFull = Number(deal.current_people) >= Number(deal.total_people);
   const canSeeBankInfo = isJoined || deal.is_author;
 
@@ -168,6 +168,11 @@ function DealCard({ deal, onJoin, isJoined, onChat }) {
            <Button variant="outline" onClick={() => onChat(deal)}>
   <MessageCircle size={17} />
 </Button>
+{(deal.is_author || role === "admin") && (
+  <Button variant="danger" onClick={() => onDelete(deal)}>
+    삭제
+  </Button>
+)}
           </div>
         </CardContent>
       </Card>
@@ -617,6 +622,45 @@ export default function AjouGroupBuyingApp() {
     alert("공구 참여 실패: " + error.message);
   }
 };
+const deleteDeal = async (deal) => {
+  const isAdmin = role === "admin";
+  const isAuthor = deal.author_id === user?.id;
+
+  if (!isAdmin && !isAuthor) {
+    alert("삭제 권한이 없습니다.");
+    return;
+  }
+
+  if (
+    !isAdmin &&
+    Number(deal.current_people) >= Number(deal.total_people)
+  ) {
+    alert("모집 완료 후에는 삭제할 수 없습니다.");
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "정말 이 공구를 삭제하시겠습니까?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const { error } = await supabase
+      .from("deals")
+      .delete()
+      .eq("id", deal.id);
+
+    if (error) throw error;
+
+    alert("공구가 삭제되었습니다.");
+
+    await fetchDeals();
+    await fetchJoinedDeals();
+  } catch (error) {
+    alert("삭제 실패: " + error.message);
+  }
+};
 const sendChatMessage = async () => {
   if (!user || !chatOpenDeal) return;
 
@@ -625,10 +669,11 @@ const sendChatMessage = async () => {
 
   const { error } = await supabase.from("deal_chats").insert([
     {
-      deal_id: chatOpenDeal.id,
-      user_id: user.id,
-      message,
-    },
+  deal_id: chatOpenDeal.id,
+  user_id: user.id,
+  nickname: profileNickname || user.email,
+  message,
+},
   ]);
 
   if (error) {
@@ -938,6 +983,8 @@ const sendChatMessage = async () => {
   onJoin={joinDeal}
   isJoined={joinedDeals.includes(deal.id)}
   onChat={openChat}
+  onDelete={deleteDeal}
+  role={role}
 />
                 ))}
               </section>
