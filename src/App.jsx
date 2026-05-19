@@ -754,7 +754,88 @@ export default function AjouGroupBuyingApp() {
   </header>
 
   <main className="mx-auto max-w-7xl px-5 py-8">
+{role === "admin" && (
+  <section className="mb-10">
+    <h2 className="mb-6 flex items-center gap-2 text-2xl font-black text-red-600">
+      <ShieldAlert /> 대기중인 인증 요청
+    </h2>
 
+    {pendingVerifications.length === 0 ? (
+      <Card>
+        <CardContent className="text-sm text-slate-500">
+          대기중인 인증 요청이 없습니다.
+        </CardContent>
+      </Card>
+    ) : (
+      <div className="grid gap-4 md:grid-cols-2">
+        {pendingVerifications.map((req) => (
+          <Card key={req.id} className="rounded-3xl border border-sky-100">
+            <CardContent className="flex items-center justify-between gap-4 p-5">
+              <div>
+                <p className="font-bold">
+                  <User size={16} className="mr-1 inline" /> 인증 요청자
+                </p>
+
+                <p className="mt-1 break-all text-xs text-slate-500">
+                  ID: {req.user_id}
+                </p>
+
+                <a
+                  href={req.id_card_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-block text-sm font-bold text-blue-600 underline"
+                >
+                  제출 사진 확인
+                </a>
+              </div>
+
+              <div className="flex gap-2">
+                <Button onClick={() => rejectVerification(req.id)} variant="danger">
+                  반려
+                </Button>
+
+                <Button onClick={() => approveStudent(req.id, req.user_id)} variant="success">
+                  <Check size={16} className="mr-1" /> 승인
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )}
+  </section>
+)}
+
+{role === "guest" && (
+  <motion.section className="mx-auto max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
+    <h2 className="mb-4 text-xl font-black text-slate-900">
+      학생 인증이 필요합니다
+    </h2>
+
+    <p className="mb-5 text-sm text-slate-500">
+      학생증 또는 아주대 구성원임을 확인할 수 있는 이미지를 제출해주세요.
+    </p>
+
+    <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-sky-200 bg-sky-50 p-8 hover:bg-sky-100">
+      <Upload className="mb-2 text-sky-500" />
+      <span className="text-sm text-slate-600">
+        {idCardFile ? idCardFile.name : "인증 사진 선택"}
+      </span>
+
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => e.target.files && setIdCardFile(e.target.files[0])}
+      />
+    </label>
+
+    <Button onClick={submitVerification} disabled={!idCardFile} className="mt-4 w-full">
+      제출하기
+    </Button>
+  </motion.section>
+)}
     {(role === "student" || role === "admin") && (
       <>
         <section className="mb-10 rounded-[2rem] bg-gradient-to-r from-sky-500 via-blue-500 to-blue-700 p-8 text-white shadow-xl">
