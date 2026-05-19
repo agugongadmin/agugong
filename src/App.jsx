@@ -652,264 +652,321 @@ export default function AjouGroupBuyingApp() {
   }
 
   if (role === "auth") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white">
-              <School size={26} />
-            </div>
-            <h2 className="text-2xl font-black">아구공 시작하기</h2>
-            <p className="mt-2 text-sm text-slate-500">아주대학교 이메일로만 이용할 수 있습니다.</p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-100 text-slate-900">
+  <header className="sticky top-0 z-40 border-b border-sky-100 bg-white/80 backdrop-blur-md">
+    <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
 
-          <form onSubmit={handleAuth} className="space-y-4">
-            <div className="relative">
-              <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
-              <input
-                type="email"
-                placeholder="아주대 이메일 (@ajou.ac.kr)"
-                className="w-full rounded-xl border p-3 pl-10 outline-none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+      <div className="flex items-center gap-3">
+        <img
+          src="/logo.png"
+          alt="아구공"
+          className="h-14 w-14 rounded-full shadow-md"
+        />
 
-            <div className="relative">
-              <Lock className="absolute left-3 top-3.5 text-slate-400" size={18} />
-              <input
-                type="password"
-                placeholder="비밀번호"
-                className="w-full rounded-xl border p-3 pl-10 outline-none"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+        <div>
+          <h1 className="text-2xl font-black text-sky-700">
+            아구공
+          </h1>
 
-            <Button type="submit" className="w-full py-4 text-lg">
-              {isSignUp ? "회원가입" : "로그인"}
-            </Button>
-          </form>
+          <div className="mt-1 flex gap-1 text-xs font-semibold text-slate-500">
+            <span>아주대 공동구매 플랫폼</span>
 
-          <div className="mt-5 text-center text-sm">
-            <button onClick={() => setIsSignUp(!isSignUp)} className="font-bold text-blue-600">
-              {isSignUp ? "로그인하기" : "회원가입하기"}
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
-              <School size={24} />
-            </div>
-            <div>
-              <h1 className="text-xl font-black">아구공</h1>
-              <div className="flex gap-1 text-xs font-semibold text-slate-500">
-                <span>아주대 공구</span>
-                <span className="rounded bg-slate-200 px-1 uppercase">{role}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            {role === "student" && (
-              <Button onClick={() => setModalOpen(true)}>
-                <Plus size={18} className="mr-1" /> 공구 등록
-              </Button>
-            )}
-            <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                setUser(null);
-                setRole("auth");
-                setDeals([]);
-                setJoinedDeals([]);
-                setPendingVerifications([]);
-              }}
-              className="rounded-xl border px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100"
-            >
-              로그아웃
-            </button>
+            <span className="rounded-full bg-sky-100 px-2 py-0.5 text-sky-700 uppercase">
+              {role}
+            </span>
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="mx-auto max-w-7xl px-5 py-8">
-        {role === "admin" && (
-          <section className="mb-10">
-            <h2 className="mb-6 flex items-center gap-2 text-2xl font-black text-red-600">
-              <ShieldAlert /> 대기중인 인증 요청
-            </h2>
+      <div className="flex gap-3">
+        {role === "student" && (
+          <Button onClick={() => setModalOpen(true)}>
+            <Plus size={18} className="mr-1" />
+            공구 등록
+          </Button>
+        )}
 
-            {pendingVerifications.length === 0 ? (
-              <Card>
-                <CardContent className="text-sm text-slate-500">대기중인 인증 요청이 없습니다.</CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {pendingVerifications.map((req) => (
-                  <Card key={req.id}>
-                    <CardContent className="flex items-center justify-between gap-4 p-5">
+        <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            setUser(null);
+            setRole("auth");
+            setDeals([]);
+            setJoinedDeals([]);
+            setPendingVerifications([]);
+          }}
+          className="rounded-2xl border border-sky-100 bg-white px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-sky-50"
+        >
+          로그아웃
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main className="mx-auto max-w-7xl px-5 py-8">
+
+    {(role === "student" || role === "admin") && (
+      <>
+        <section className="mb-10 rounded-[2rem] bg-gradient-to-r from-sky-500 via-blue-500 to-blue-700 p-8 text-white shadow-xl">
+
+          <h2 className="text-3xl font-black leading-tight">
+            혼자 사면 비싸니까,
+            <br />
+            아주대생끼리 같이 사자.
+          </h2>
+
+          <p className="mt-3 text-sm text-blue-50">
+            물건, OTT, AI 구독, 약속까지
+            필요한 사람을 모아 부담을 줄여보세요.
+          </p>
+
+          <div className="mt-5 flex items-center gap-2 text-sm font-semibold">
+            <Users size={17} />
+            현재 등록된 공구 {deals.length}개
+          </div>
+        </section>
+
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+
+          <div className="relative max-w-sm flex-1">
+            <Search
+              className="absolute left-3 top-3 text-slate-400"
+              size={18}
+            />
+
+            <input
+              className="w-full rounded-2xl border border-sky-100 bg-white p-3 pl-10 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+              placeholder="검색"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {categories.map((item) => (
+              <button
+                key={item}
+                onClick={() => setCategory(item)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  category === item
+                    ? "bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-md"
+                    : "border border-sky-100 bg-white hover:bg-sky-50"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {loadingDeals ? (
+          <Card>
+            <CardContent className="text-sm text-slate-500">
+              공구 목록을 불러오는 중입니다.
+            </CardContent>
+          </Card>
+        ) : filteredDeals.length === 0 ? (
+          <Card>
+            <CardContent className="text-sm text-slate-500">
+              조건에 맞는 공구가 없습니다.
+            </CardContent>
+          </Card>
+        ) : (
+          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {filteredDeals.map((deal) => (
+              <motion.div
+                key={deal.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <Card className="rounded-3xl border border-sky-100 bg-white transition hover:-translate-y-1 hover:shadow-2xl">
+
+                  {deal.image_url ? (
+                    <div className="h-32 w-full bg-slate-100">
+                      <img
+                        src={deal.image_url}
+                        alt={deal.title}
+                        className="h-full w-full object-cover object-center"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-32 w-full items-center justify-center bg-slate-100 text-slate-400">
+                      <ImageIcon size={32} />
+                    </div>
+                  )}
+
+                  <CardContent>
+
+                    <div className="flex items-start justify-between gap-3">
+
                       <div>
-                        <p className="font-bold">
-  <User size={16} className="mr-1 inline" /> 인증 요청자
-</p>
+                        <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
+                          <Tag size={13} />
+                          {deal.category}
+                        </div>
 
-<p className="mt-1 break-all text-xs text-slate-500">
-  ID: {req.user_id}
-</p>
+                        <h3 className="text-lg font-bold text-slate-900">
+                          {deal.title}
+                        </h3>
 
-<a
-  href={req.id_card_url}
-  target="_blank"
-  rel="noreferrer"
-  className="mt-2 inline-block text-sm text-blue-600 underline"
->
-  제출 사진 확인
-</a>
+                        <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+                          {deal.description || "상세 설명이 없습니다."}
+                        </p>
                       </div>
-                      <div className="flex gap-2">
-                        <Button onClick={() => rejectVerification(req.id)} variant="danger">
-                          반려
-                        </Button>
-                        <Button onClick={() => approveStudent(req.id, req.user_id)} variant="success">
-                          <Check size={16} className="mr-1" /> 승인
-                        </Button>
+
+                      <span
+                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
+                          Number(deal.current_people) >= Number(deal.total_people)
+                            ? "bg-slate-900 text-white"
+                            : "bg-emerald-50 text-emerald-700"
+                        }`}
+                      >
+                        {deal.status}
+                      </span>
+                    </div>
+
+                    <ProgressBar
+                      current={deal.current_people}
+                      total={deal.total_people}
+                    />
+
+                    <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+
+                      <div className="rounded-2xl bg-sky-50 p-3">
+                        <p className="text-slate-400">1인 예상가</p>
+
+                        <p className="mt-1 font-bold text-slate-900">
+                          {formatWon(deal.price)}
+                        </p>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+
+                      <div className="rounded-2xl bg-sky-50 p-3">
+                        <p className="text-slate-400">거래 장소</p>
+
+                        <p className="mt-1 font-bold text-slate-900">
+                          {deal.location || "미정"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2 text-sm text-slate-500">
+                      <Clock size={15} />
+                      마감일 {deal.deadline}
+                    </div>
+
+                    <div className="mt-5 flex gap-2">
+
+                      <Button
+                        onClick={() => joinDeal(deal)}
+                        disabled={
+                          Number(deal.current_people) >=
+                            Number(deal.total_people) ||
+                          joinedDeals.includes(deal.id) ||
+                          deal.is_author
+                        }
+                        className={`flex-1 ${
+                          joinedDeals.includes(deal.id)
+                            ? "!bg-emerald-600"
+                            : ""
+                        }`}
+                      >
+                        {deal.is_author
+                          ? "내가 만든 공구"
+                          : joinedDeals.includes(deal.id)
+                          ? "참여 완료"
+                          : Number(deal.current_people) >=
+                            Number(deal.total_people)
+                          ? "구매 진행중"
+                          : "참여하기"}
+                      </Button>
+
+                      <Button variant="outline">
+                        <MessageCircle size={17} />
+                      </Button>
+
+                      {((deal.is_author &&
+                        Number(deal.current_people) <
+                          Number(deal.total_people)) ||
+                        role === "admin") && (
+                        <Button
+                          variant="danger"
+                          onClick={() => deleteDeal(deal)}
+                          className="px-3"
+                        >
+                          삭제
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </section>
         )}
+      </>
+    )}
+  </main>
 
-        {role === "guest" && (
-          <motion.section className="mx-auto max-w-md rounded-3xl bg-slate-900 p-8 text-center text-white">
-            <h2 className="mb-4 text-xl font-black">학생 인증이 필요합니다</h2>
-            <p className="mb-5 text-sm text-slate-300">학생증 또는 아주대 구성원임을 확인할 수 있는 이미지를 제출해주세요.</p>
+  <footer className="mt-20 border-t border-sky-100 bg-white/80 px-6 py-10 text-sm text-slate-500 backdrop-blur">
 
-            <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-600 p-8 hover:bg-slate-800">
-              <Upload className="mb-2 text-slate-400" />
-              <span className="text-sm">{idCardFile ? idCardFile.name : "사진 선택"}</span>
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && setIdCardFile(e.target.files[0])} />
-            </label>
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
 
-            <Button onClick={submitVerification} disabled={!idCardFile} className="mt-4 w-full !bg-blue-600">
-              제출하기
-            </Button>
-          </motion.section>
-        )}
+      <div>
+        <h3 className="text-lg font-black text-sky-700">
+          아구공
+        </h3>
 
-        {(role === "student" || role === "admin") && (
-          <>
-            <section className="mb-8 rounded-3xl bg-gradient-to-r from-blue-600 to-blue-500 p-7 text-white shadow-sm">
-              <h2 className="text-2xl font-black">아주대 구성원을 위한 공동구매</h2>
-              <p className="mt-2 text-sm text-blue-50">물건, OTT, AI 구독, 약속까지 필요한 사람을 모아 부담을 줄여보세요.</p>
-              <div className="mt-4 flex items-center gap-2 text-sm font-semibold">
-                <Users size={17} /> 현재 등록된 공구 {deals.length}개
-              </div>
-            </section>
+        <p className="mt-1">
+          아주대학교 구성원을 위한 공동구매 플랫폼
+        </p>
 
-            <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="relative max-w-sm flex-1">
-                <Search className="absolute left-3 top-3 text-slate-400" size={18} />
-                <input
-                  className="w-full rounded-xl border p-3 pl-10 outline-none"
-                  placeholder="검색"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                />
-              </div>
+        <p className="mt-4 text-xs text-slate-400">
+          © 2026 AGUGONG. All rights reserved.
+        </p>
+      </div>
 
-              <div className="flex flex-wrap gap-2">
-                {categories.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => setCategory(item)}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${category === item ? "bg-blue-600 text-white" : "border bg-white"}`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
+      <div className="flex flex-wrap gap-4 text-sm font-semibold">
 
-            {loadingDeals ? (
-              <Card>
-                <CardContent className="text-sm text-slate-500">공구 목록을 불러오는 중입니다.</CardContent>
-              </Card>
-            ) : filteredDeals.length === 0 ? (
-              <Card>
-                <CardContent className="text-sm text-slate-500">조건에 맞는 공구가 없습니다.</CardContent>
-              </Card>
-            ) : (
-              <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {filteredDeals.map((deal) => (
-                  <DealCard
-                    key={deal.id}
-                    deal={deal}
-                    onJoin={joinDeal}
-                    isJoined={joinedDeals.includes(deal.id)}
-                    onDelete={deleteDeal}
-                    role={role}
-                  />
-                ))}
-              </section>
-            )}
-          </>
-        )}
-      </main>
-      <footer className="mt-20 border-t bg-white px-6 py-8 text-sm text-slate-500">
-  <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-    
-    <div>
-      <h3 className="font-bold text-slate-900">아구공</h3>
-      <p>아주대학교 구성원을 위한 공동구매 플랫폼</p>
+        <a
+          href="이용약관 링크"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-sky-700"
+        >
+          이용약관
+        </a>
+
+        <a
+          href="개인정보처리방침 링크"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-sky-700"
+        >
+          개인정보처리방침
+        </a>
+
+        <a
+          href="운영정책 링크"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-sky-700"
+        >
+          운영정책
+        </a>
+
+        <a
+          href="mailto:example@gmail.com"
+          className="hover:text-sky-700"
+        >
+          문의하기
+        </a>
+      </div>
     </div>
+  </footer>
 
-    <div className="flex gap-4">
-      <a
-        href="이용약관 링크"
-        target="_blank"
-        className="hover:text-slate-900"
-      >
-        이용약관
-      </a>
-
-      <a
-        href="개인정보처리방침 링크"
-        target="_blank"
-        className="hover:text-slate-900"
-      >
-        개인정보처리방침
-      </a>
-
-      <a
-        href="운영정책 링크"
-        target="_blank"
-        className="hover:text-slate-900"
-      >
-        운영정책
-      </a>
-
-      <a
-        href="mailto:example@gmail.com"
-        className="hover:text-slate-900"
-      >
-        문의하기
-      </a>
-    </div>
-  </div>
-</footer>
-      <CreateDealModal open={modalOpen} onClose={() => setModalOpen(false)} onCreate={createDeal} />
-    </div>
-  );
-}
+  <CreateDealModal
+    open={modalOpen}
+    onClose={() => setModalOpen(false)}
+    onCreate={createDeal}
+  />
+</div>
