@@ -292,6 +292,7 @@ export default function AjouGroupBuyingApp() {
   const [category, setCategory] = useState("전체");
   const [modalOpen, setModalOpen] = useState(false);
   const [loadingDeals, setLoadingDeals] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(null);
 
   useEffect(() => {
   let mounted = true;
@@ -922,84 +923,75 @@ export default function AjouGroupBuyingApp() {
       )}
 
       {profileOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-black text-slate-900">내 프로필</h2>
-              <button
-                onClick={() => setProfileOpen(false)}
-                className="rounded-full p-2 hover:bg-slate-100"
-              >
-                <X size={20} />
-              </button>
-            </div>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+    <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-black text-slate-900">내 프로필</h2>
+        <button onClick={() => setProfileOpen(false)} className="rounded-full p-2 hover:bg-slate-100">
+          <X size={20} />
+        </button>
+      </div>
 
-            <div className="mt-6 flex flex-col items-center text-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-sky-400 text-3xl font-black text-white shadow-lg">
-                {(profileNickname || "?").charAt(0)}
-              </div>
-
-              <h3 className="mt-4 text-xl font-black text-slate-900">
-                {profileNickname || "닉네임 미설정"}
-              </h3>
-
-              <p className="mt-1 break-all text-sm text-slate-500">
-                {user?.email}
-              </p>
-            </div>
-          </div>
+      <div className="mt-6 flex flex-col items-center text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-sky-400 text-3xl font-black text-white shadow-lg">
+          {(profileNickname || "?").charAt(0)}
         </div>
-      )}
+
+        <h3 className="mt-4 text-xl font-black text-slate-900">
+          {profileNickname || "닉네임 미설정"}
+        </h3>
+
+        <p className="mt-1 break-all text-sm text-slate-500">
+          {user?.email}
+        </p>
+      </div>
+    </div>
+  </div>
+)}
+
 {settingsOpen && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
     <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
-
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-slate-900">
-          설정
-        </h2>
-
-        <button
-          onClick={() => setSettingsOpen(false)}
-          className="rounded-full p-2 hover:bg-slate-100"
-        >
+        <h2 className="text-xl font-black text-slate-900">설정</h2>
+        <button onClick={() => setSettingsOpen(false)} className="rounded-full p-2 hover:bg-slate-100">
           <X size={20} />
         </button>
       </div>
 
       <div className="mt-6 space-y-6">
-
         <section>
-          <h3 className="mb-3 text-sm font-black text-sky-700">
-            내 활동
-          </h3>
-
+          <h3 className="mb-3 text-sm font-black text-sky-700">내 활동</h3>
           <div className="grid gap-2">
-            <button className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
+            <button
+              onClick={() => setActivityOpen("created")}
+              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
+            >
               내가 만든 공구
             </button>
 
-            <button className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
+            <button
+              onClick={() => setActivityOpen("joined")}
+              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
+            >
               내가 참여한 공구
             </button>
 
-            <button className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
+            <button
+              onClick={() => alert("채팅방 기능은 5단계에서 연결할게.")}
+              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
+            >
               참여 중인 채팅방
             </button>
           </div>
         </section>
 
         <section>
-          <h3 className="mb-3 text-sm font-black text-sky-700">
-            계정 관리
-          </h3>
-
+          <h3 className="mb-3 text-sm font-black text-sky-700">계정 관리</h3>
           <div className="grid gap-2">
-
             <button
               onClick={async () => {
                 await supabase.auth.signOut();
-
                 setUser(null);
                 setRole("auth");
                 setDeals([]);
@@ -1016,11 +1008,7 @@ export default function AjouGroupBuyingApp() {
             </button>
 
             <button
-              onClick={() =>
-                alert(
-                  "회원 탈퇴는 현재 관리자 문의를 통해 처리됩니다."
-                )
-              }
+              onClick={() => alert("회원 탈퇴는 현재 관리자 문의를 통해 처리됩니다.")}
               className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-red-600 hover:bg-red-50"
             >
               회원 탈퇴 안내
@@ -1029,37 +1017,18 @@ export default function AjouGroupBuyingApp() {
         </section>
 
         <section>
-          <h3 className="mb-3 text-sm font-black text-sky-700">
-            고객지원
-          </h3>
-
+          <h3 className="mb-3 text-sm font-black text-sky-700">고객지원</h3>
           <div className="grid gap-2">
-
-            <button
-              onClick={() => setPolicyOpen("terms")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
+            <button onClick={() => setPolicyOpen("terms")} className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
               이용약관
             </button>
-
-            <button
-              onClick={() => setPolicyOpen("privacy")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
+            <button onClick={() => setPolicyOpen("privacy")} className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
               개인정보처리방침
             </button>
-
-            <button
-              onClick={() => setPolicyOpen("operation")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
+            <button onClick={() => setPolicyOpen("operation")} className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
               운영정책
             </button>
-
-            <button
-              onClick={() => setPolicyOpen("contact")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
+            <button onClick={() => setPolicyOpen("contact")} className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
               문의하기
             </button>
           </div>
@@ -1067,20 +1036,14 @@ export default function AjouGroupBuyingApp() {
 
         {role === "admin" && (
           <section>
-            <h3 className="mb-3 text-sm font-black text-red-600">
-              관리자 전용
-            </h3>
-
+            <h3 className="mb-3 text-sm font-black text-red-600">관리자 전용</h3>
             <div className="grid gap-2">
-
               <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
                 인증 요청 관리
               </button>
-
               <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
                 게시글 관리
               </button>
-
               <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
                 회원 관리
               </button>
@@ -1090,153 +1053,12 @@ export default function AjouGroupBuyingApp() {
       </div>
     </div>
   </div>
-)}{settingsOpen && (
+)}
+
+{policyOpen && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
-    <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
-
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-slate-900">
-          설정
-        </h2>
-
-        <button
-          onClick={() => setSettingsOpen(false)}
-          className="rounded-full p-2 hover:bg-slate-100"
-        >
-          <X size={20} />
-        </button>
-      </div>
-
-      <div className="mt-6 space-y-6">
-
-        <section>
-          <h3 className="mb-3 text-sm font-black text-sky-700">
-            내 활동
-          </h3>
-
-          <div className="grid gap-2">
-            <button className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
-              내가 만든 공구
-            </button>
-
-            <button className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
-              내가 참여한 공구
-            </button>
-
-            <button className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50">
-              참여 중인 채팅방
-            </button>
-          </div>
-        </section>
-
-        <section>
-          <h3 className="mb-3 text-sm font-black text-sky-700">
-            계정 관리
-          </h3>
-
-          <div className="grid gap-2">
-
-            <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-
-                setUser(null);
-                setRole("auth");
-                setDeals([]);
-                setJoinedDeals([]);
-                setPendingVerifications([]);
-                setProfileNickname("");
-                setNicknameInput("");
-                setProfileOpen(false);
-                setSettingsOpen(false);
-              }}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
-              로그아웃
-            </button>
-
-            <button
-              onClick={() =>
-                alert(
-                  "회원 탈퇴는 현재 관리자 문의를 통해 처리됩니다."
-                )
-              }
-              className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-red-600 hover:bg-red-50"
-            >
-              회원 탈퇴 안내
-            </button>
-          </div>
-        </section>
-
-        <section>
-          <h3 className="mb-3 text-sm font-black text-sky-700">
-            고객지원
-          </h3>
-
-          <div className="grid gap-2">
-
-            <button
-              onClick={() => setPolicyOpen("terms")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
-              이용약관
-            </button>
-
-            <button
-              onClick={() => setPolicyOpen("privacy")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
-              개인정보처리방침
-            </button>
-
-            <button
-              onClick={() => setPolicyOpen("operation")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
-              운영정책
-            </button>
-
-            <button
-              onClick={() => setPolicyOpen("contact")}
-              className="rounded-2xl border border-sky-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-sky-50"
-            >
-              문의하기
-            </button>
-          </div>
-        </section>
-
-        {role === "admin" && (
-          <section>
-            <h3 className="mb-3 text-sm font-black text-red-600">
-              관리자 전용
-            </h3>
-
-            <div className="grid gap-2">
-
-              <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
-                인증 요청 관리
-              </button>
-
-              <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
-                게시글 관리
-              </button>
-
-              <button className="rounded-2xl border border-red-100 p-4 text-left text-sm font-bold text-slate-700 hover:bg-red-50">
-                회원 관리
-              </button>
-            </div>
-          </section>
-        )}
-      </div>
-    </div>
-  </div>
-)}{policyOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
-
     <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
-
       <div className="mb-5 flex items-center justify-between">
-
         <h2 className="text-xl font-black text-slate-900">
           {policyOpen === "terms" && "이용약관"}
           {policyOpen === "privacy" && "개인정보처리방침"}
@@ -1244,75 +1066,40 @@ export default function AjouGroupBuyingApp() {
           {policyOpen === "contact" && "문의하기"}
         </h2>
 
-        <button
-          onClick={() => setPolicyOpen(null)}
-          className="rounded-full p-2 hover:bg-slate-100"
-        >
+        <button onClick={() => setPolicyOpen(null)} className="rounded-full p-2 hover:bg-slate-100">
           <X size={20} />
         </button>
       </div>
 
       <div className="space-y-5 text-sm leading-7 text-slate-700">
-
         {policyOpen === "terms" && (
           <>
-            <h3 className="text-lg font-black text-sky-700">
-              아구공 이용약관
-            </h3>
-
-            <p>
-              본 약관은 아주대학교 공동구매 플랫폼 “아구공”의
-              이용과 관련하여 운영자, 개설자 및 참여자 간의
-              권리·의무와 책임 사항을 규정합니다.
-            </p>
-
-            <p>
-              아구공은 공동구매를 위한 중개 플랫폼이며,
-              실제 거래 및 배송은 개설자와 참여자 간에 이루어집니다.
-            </p>
+            <h3 className="text-lg font-black text-sky-700">아구공 이용약관</h3>
+            <p>본 약관은 아주대학교 공동구매 플랫폼 “아구공”의 이용과 관련하여 운영자, 개설자 및 참여자 간의 권리·의무와 책임 사항을 규정합니다.</p>
+            <p>아구공은 공동구매를 위한 중개 플랫폼이며, 실제 거래 및 배송은 개설자와 참여자 간에 이루어집니다.</p>
           </>
         )}
 
         {policyOpen === "privacy" && (
           <>
-            <h3 className="text-lg font-black text-sky-700">
-              개인정보처리방침
-            </h3>
-
-            <p>
-              아구공은 이메일, 닉네임, 학교 인증 정보 등을
-              수집할 수 있으며 서비스 운영 목적 외에는 사용하지 않습니다.
-            </p>
-
-            <p>
-              회원 탈퇴 또는 목적 달성 시 개인정보는 즉시 파기됩니다.
-            </p>
+            <h3 className="text-lg font-black text-sky-700">개인정보처리방침</h3>
+            <p>아구공은 이메일, 닉네임, 학교 인증 정보 등을 수집할 수 있으며 서비스 운영 목적 외에는 사용하지 않습니다.</p>
+            <p>회원 탈퇴 또는 목적 달성 시 개인정보는 즉시 파기됩니다.</p>
           </>
         )}
 
         {policyOpen === "operation" && (
           <>
-            <h3 className="text-lg font-black text-sky-700">
-              운영정책
-            </h3>
-
-            <p>
-              허위 게시글, 사기, 욕설, 불법 거래 등은
-              사전 통보 없이 삭제 및 이용 제한될 수 있습니다.
-            </p>
+            <h3 className="text-lg font-black text-sky-700">운영정책</h3>
+            <p>허위 게시글, 사기, 욕설, 불법 거래 등은 사전 통보 없이 삭제 및 이용 제한될 수 있습니다.</p>
           </>
         )}
 
         {policyOpen === "contact" && (
           <>
-            <h3 className="text-lg font-black text-sky-700">
-              문의하기
-            </h3>
-
+            <h3 className="text-lg font-black text-sky-700">문의하기</h3>
             <div className="rounded-2xl bg-sky-50 p-4">
-              <p className="font-bold">
-                agugong.official@gmail.com
-              </p>
+              <p className="font-bold">agugong.official@gmail.com</p>
             </div>
           </>
         )}
@@ -1320,7 +1107,74 @@ export default function AjouGroupBuyingApp() {
     </div>
   </div>
 )}
-      <CreateDealModal open={modalOpen} onClose={() => setModalOpen(false)} onCreate={createDeal} />
+
+{activityOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+    <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
+      <div className="mb-5 flex items-center justify-between">
+        <h2 className="text-xl font-black text-slate-900">
+          {activityOpen === "created" ? "내가 만든 공구" : "내가 참여한 공구"}
+        </h2>
+
+        <button onClick={() => setActivityOpen(null)} className="rounded-full p-2 hover:bg-slate-100">
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {deals
+          .filter((deal) => {
+            if (activityOpen === "created") return deal.author_id === user.id;
+            return joinedDeals.includes(deal.id) && deal.author_id !== user.id;
+          })
+          .map((deal) => (
+            <Card key={deal.id}>
+              {deal.image_url ? (
+                <div className="h-40 w-full bg-slate-100">
+                  <img src={deal.image_url} alt={deal.title} className="h-full w-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex h-40 items-center justify-center bg-slate-100 text-slate-400">
+                  <ImageIcon size={28} />
+                </div>
+              )}
+
+              <CardContent>
+                <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                  <Tag size={13} />
+                  {deal.category}
+                </div>
+
+                <h3 className="text-lg font-black text-slate-900">{deal.title}</h3>
+
+                <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+                  {deal.description || "설명이 없습니다."}
+                </p>
+
+                <div className="mt-4 flex items-center justify-between text-sm">
+                  <span className="font-bold text-slate-900">{formatWon(deal.price)}</span>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                    {deal.status}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+        {deals.filter((deal) => {
+          if (activityOpen === "created") return deal.author_id === user.id;
+          return joinedDeals.includes(deal.id) && deal.author_id !== user.id;
+        }).length === 0 && (
+          <div className="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm text-slate-500">
+            표시할 공구가 없습니다.
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+<CreateDealModal open={modalOpen} onClose={() => setModalOpen(false)} onCreate={createDeal} />
     </div>
   );
 }
