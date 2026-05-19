@@ -282,7 +282,7 @@ export default function AjouGroupBuyingApp() {
   const [profileNickname, setProfileNickname] = useState("");
   const [nicknameInput, setNicknameInput] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
-
+  const [settingsOpen, setSettingsOpen] = useState(false); 
   const [idCardFile, setIdCardFile] = useState(null);
   const [deals, setDeals] = useState([]);
   const [pendingVerifications, setPendingVerifications] = useState([]);
@@ -714,23 +714,36 @@ export default function AjouGroupBuyingApp() {
           </div>
 
           <div className="flex gap-3">
-            {role === "student" && (
-              <Button onClick={() => setModalOpen(true)}>
-                <Plus size={18} className="mr-1" /> 공구 등록
-              </Button>
-            )}<button
-  onClick={() => setProfileOpen(true)}
-  className="flex items-center gap-2 rounded-2xl border border-sky-100 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-sky-50"
->
-  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-sky-400 text-sm font-black text-white shadow">
-    {(profileNickname || user?.email || "?").charAt(0)}
-  </div>
-  <span className="hidden sm:inline">{profileNickname || "프로필"}</span>
-</button>
+  {role === "student" && (
+    <Button onClick={() => setModalOpen(true)}>
+      <Plus size={18} className="mr-1" />
+      공구 등록
+    </Button>
+  )}
 
-<button
-  onClick={async () => {
-    await supabase.auth.signOut();
+  <button
+    onClick={() => setProfileOpen(true)}
+    className="flex items-center gap-2 rounded-2xl border border-sky-100 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-sky-50"
+  >
+    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-sky-400 text-sm font-black text-white shadow">
+      {(profileNickname || user?.email || "?").charAt(0)}
+    </div>
+
+    <span className="hidden sm:inline">
+      {profileNickname || "프로필"}
+    </span>
+  </button>
+
+  <button
+    onClick={() => setSettingsOpen(true)}
+    className="rounded-2xl border border-sky-100 bg-white px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-sky-50"
+  >
+    설정
+  </button>
+
+  <button
+    onClick={async () => {
+      await supabase.auth.signOut();
     setUser(null);
     setRole("auth");
     setDeals([]);
