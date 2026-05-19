@@ -1124,7 +1124,7 @@ export default function AjouGroupBuyingApp() {
       <div className="grid gap-4 md:grid-cols-2">
         {deals
           .filter((deal) => {
-            if (activityOpen === "created") return deal.author_id === user.id;
+            if (activityOpen === "created") return deal.author_id === user?.id;
             return joinedDeals.includes(deal.id) && deal.author_id !== user.id;
           })
           .map((deal) => (
@@ -1162,7 +1162,7 @@ export default function AjouGroupBuyingApp() {
           ))}
 
         {deals.filter((deal) => {
-          if (activityOpen === "created") return deal.author_id === user.id;
+          if (activityOpen === "created") return deal.author_id === user?.id;
           return joinedDeals.includes(deal.id) && deal.author_id !== user.id;
         }).length === 0 && (
           <div className="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm text-slate-500">
