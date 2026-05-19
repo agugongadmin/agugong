@@ -1263,19 +1263,29 @@ const sendChatMessage = async () => {
 
             return (
               <div
-                key={msg.id}
-                className={`flex ${isMine ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
-                    isMine
-                      ? "bg-gradient-to-r from-blue-500 to-sky-400 text-white"
-                      : "bg-slate-100 text-slate-800"
-                  }`}
-                >
-                  {msg.message}
-                </div>
-              </div>
+  key={msg.id}
+  className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+>
+  <div className="max-w-[75%]">
+    <p
+      className={`mb-1 text-xs font-bold ${
+        isMine ? "text-right text-sky-600" : "text-slate-500"
+      }`}
+    >
+      {msg.nickname || "사용자"}
+    </p>
+
+    <div
+      className={`rounded-2xl px-4 py-2 text-sm ${
+        isMine
+          ? "bg-gradient-to-r from-blue-500 to-sky-400 text-white"
+          : "bg-slate-100 text-slate-800"
+      }`}
+    >
+      {msg.message}
+    </div>
+  </div>
+</div>
             );
           })
         )}
