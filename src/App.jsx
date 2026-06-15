@@ -755,7 +755,7 @@ const sendChatMessage = async () => {
               <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
               <input
                 type="text"
-                placeholder="아이디를 입력해주세요"
+                placeholder="아이디"
                 className="w-full rounded-xl border p-3 pl-10 outline-none"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
