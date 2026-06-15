@@ -436,7 +436,12 @@ export default function AjouGroupBuyingApp() {
   }, [deals, keyword, category]);
 
   const formatUsernameForAuth = (value) => {
-    const base = value.trim().toLowerCase().split("@")[0].replace(/[^a-z0-9._-]/g, "_");
+    if (!value) return "";
+    const v = value.trim().toLowerCase();
+    // If user entered a full email, return it as-is so existing accounts work
+    if (v.includes("@")) return v;
+
+    const base = v.split("@")[0].replace(/[^a-z0-9._-]/g, "_");
     return base ? `${base}@agugong.local` : "";
   };
 
