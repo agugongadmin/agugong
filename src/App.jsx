@@ -445,24 +445,11 @@ export default function AjouGroupBuyingApp() {
     }
 
     if (isSignUp) {
-      if (nicknameInput.trim().length < 2 || nicknameInput.trim().length > 10) {
-        alert("닉네임은 2~10자로 입력해주세요.");
-        return;
-      }
-
       const { data, error } = await supabase.auth.signUp({ email, password });
 
       if (error) {
         alert("가입 실패: " + error.message);
         return;
-      }
-
-      if (data.user) {
-        await supabase.from("profiles").upsert({
-          id: data.user.id,
-          role: "guest",
-          nickname: nicknameInput.trim(),
-        });
       }
 
       alert("가입 완료! 메일 인증 후 로그인해주세요.");
@@ -756,19 +743,6 @@ const sendChatMessage = async () => {
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4">
-            {isSignUp && (
-              <div className="relative">
-                <User className="absolute left-3 top-3.5 text-slate-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="닉네임 (2~10자)"
-                  className="w-full rounded-xl border p-3 pl-10 outline-none"
-                  value={nicknameInput}
-                  onChange={(e) => setNicknameInput(e.target.value)}
-                />
-              </div>
-            )}
-
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
               <input
