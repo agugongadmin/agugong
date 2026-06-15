@@ -440,6 +440,28 @@ export default function AjouGroupBuyingApp() {
     return base ? `${base}@agugong.local` : "";
   };
 
+  const signUpWithUsername = async () => {
+    if (!username || !password) {
+      setIsSignUp(true);
+      return;
+    }
+
+    if (password.length < 6) {
+      return alert("비밀번호는 최소 6자 이상이어야 합니다.");
+    }
+
+    const authEmail = formatUsernameForAuth(username);
+    if (!authEmail) return alert("유효한 아이디를 입력해주세요.");
+
+    const { data, error } = await supabase.auth.signUp({ email: authEmail, password });
+    if (error) {
+      alert("가입 실패: " + error.message);
+      return;
+    }
+
+    alert("가입 완료! 로그인 후 이용해주세요.");
+  };
+
   const handleAuth = async (e) => {
     e.preventDefault();
 
@@ -779,7 +801,16 @@ const sendChatMessage = async () => {
           </form>
 
           <div className="mt-5 text-center text-sm">
-            <button onClick={() => setIsSignUp(!isSignUp)} className="font-bold text-blue-600">
+            <button
+              onClick={async () => {
+                if (isSignUp) {
+                  setIsSignUp(false);
+                } else {
+                  await signUpWithUsername();
+                }
+              }}
+              className="font-bold text-blue-600"
+            >
               {isSignUp ? "로그인하기" : "회원가입하기"}
             </button>
           </div>
