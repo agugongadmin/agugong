@@ -281,7 +281,7 @@ function CreateDealModal({ open, onClose, onCreate }) {
 export default function AjouGroupBuyingApp() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState("loading");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [profileNickname, setProfileNickname] = useState("");
@@ -435,26 +435,34 @@ export default function AjouGroupBuyingApp() {
     });
   }, [deals, keyword, category]);
 
+  const formatUsernameForAuth = (value) => {
+    const base = value.trim().toLowerCase().split("@")[0].replace(/[^a-z0-9._-]/g, "_");
+    return base ? `${base}@agugong.local` : "";
+  };
+
   const handleAuth = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) return alert("이메일과 비밀번호를 입력해주세요.");
+    if (!username || !password) return alert("아이디와 비밀번호를 입력해주세요.");
 
     if (password.length < 6) {
       return alert("비밀번호는 최소 6자 이상이어야 합니다.");
     }
 
+    const authEmail = formatUsernameForAuth(username);
+    if (!authEmail) return alert("유효한 아이디를 입력해주세요.");
+
     if (isSignUp) {
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email: authEmail, password });
 
       if (error) {
         alert("가입 실패: " + error.message);
         return;
       }
 
-      alert("가입 완료! 메일 인증 후 로그인해주세요.");
+      alert("가입 완료! 로그인 후 이용해주세요.");
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
       if (error) alert("로그인 실패: " + error.message);
     }
   };
@@ -746,11 +754,11 @@ const sendChatMessage = async () => {
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
               <input
-                type="email"
-                placeholder="이메일을 입력해주세요"
+                type="text"
+                placeholder="아이디를 입력해주세요"
                 className="w-full rounded-xl border p-3 pl-10 outline-none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
 
