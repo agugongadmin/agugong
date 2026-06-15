@@ -440,10 +440,6 @@ export default function AjouGroupBuyingApp() {
 
     if (!email || !password) return alert("이메일과 비밀번호를 입력해주세요.");
 
-    if (!email.endsWith("@ajou.ac.kr")) {
-      return alert("아주대학교 이메일(@ajou.ac.kr)만 가입/로그인할 수 있습니다.");
-    }
-
     if (password.length < 6) {
       return alert("비밀번호는 최소 6자 이상이어야 합니다.");
     }
@@ -777,7 +773,7 @@ const sendChatMessage = async () => {
               <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
               <input
                 type="email"
-                placeholder="아주대 이메일 (@ajou.ac.kr)"
+                placeholder="이메일을 입력해주세요"
                 className="w-full rounded-xl border p-3 pl-10 outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
