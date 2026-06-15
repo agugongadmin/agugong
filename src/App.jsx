@@ -922,7 +922,7 @@ const sendChatMessage = async () => {
         {role === "guest" && (
           <motion.section className="mx-auto max-w-md rounded-3xl bg-slate-900 p-8 text-center text-white">
             <h2 className="mb-4 text-xl font-black">학생 인증이 필요합니다</h2>
-            <p className="mb-5 text-sm text-slate-300">학생증 또는 아주대 구성원임을 확인할 수 있는 이미지를 제출해주세요.</p>
+            <p className="mb-5 text-sm text-slate-300">학생증은 대학교명, 이름, 학과, 학번 앞 4자리는 보여주되, 사진, 주민번호, 바코드, 학번 뒤 5자리는 가리고 제출해 주세요.</p>
 
             <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-600 p-8 hover:bg-slate-800">
               <Upload className="mb-2 text-slate-400" />
