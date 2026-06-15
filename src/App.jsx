@@ -95,7 +95,7 @@ function ProgressBar({ current, total }) {
 // --- 공구 카드 컴포넌트 ---
 function DealCard({ deal, onJoin, isJoined, onChat, onDelete, role }) {
   const isFull = Number(deal.current_people) >= Number(deal.total_people);
-  const canSeeBankInfo = isJoined || deal.is_author;
+  const canSeeBankInfo = isJoined || deal.is_author || role === "admin";
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
